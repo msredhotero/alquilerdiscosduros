@@ -31,7 +31,9 @@ switch ($accion) {
 	case 'registrar':
 		registrar($serviciosUsuarios);
         break;
-
+	case 'existe':
+		existe($serviciosReferencias);
+        break;
 
 
 		case 'insertarAlquileres': 
@@ -83,6 +85,9 @@ switch ($accion) {
 		case 'traerFechaEstrenoPorDisco':
 			traerFechaEstrenoPorDisco($serviciosReferencias);
 		break;
+		case 'existeDiscosPorNro':
+			existeDiscosPorNro($serviciosReferencias);
+			break;
 
 		case 'insertarPeliculas': 
 		insertarPeliculas($serviciosReferencias); 
@@ -173,6 +178,18 @@ function traerFechaEstrenoPorDisco($serviciosReferencias) {
 	echo $res;
 }
 
+function existeDiscosPorNro($serviciosReferencias) {
+	$numerohard = $_POST['numerohard'];
+
+	$res = $serviciosReferencias->traerDiscosPorNro($numerohard);
+
+	if (mysql_num_rows($res)>0) {
+		echo 'Si';
+	} else {
+		echo 'No';
+	}
+}
+
 function insertarAlquileres($serviciosReferencias) { 
 	$fechaentrega = $_POST['fechaentrega']; 
 	$metodoentrega = $_POST['metodoentrega']; 
@@ -181,6 +198,13 @@ function insertarAlquileres($serviciosReferencias) {
 	$numeroguia = $_POST['numeroguia']; 
 	$fechadevolucion = $_POST['fechadevolucion']; 
 	$refdiscos = $_POST['refdiscos']; 
+
+	if ($metodoentrega == 1) {
+		$reftransporteterceros = 0;
+		$numeroguia = '';
+	} else {
+		$refmoviles = 0;
+	}
 	
 	
 	$res = $serviciosReferencias->insertarAlquileres($fechaentrega,$metodoentrega,$refmoviles,$reftransporteterceros,$numeroguia,$fechadevolucion,$refdiscos); 
@@ -210,6 +234,13 @@ function insertarAlquileres($serviciosReferencias) {
 		$numeroguia = $_POST['numeroguia']; 
 		$fechadevolucion = $_POST['fechadevolucion']; 
 		$refdiscos = $_POST['refdiscos']; 
+
+		if ($metodoentrega == 1) {
+			$reftransporteterceros = 0;
+			$numeroguia = '';
+		} else {
+			$refmoviles = 0;
+		}
 		
 		
 		$res = $serviciosReferencias->modificarAlquileres($id,$fechaentrega,$metodoentrega,$refmoviles,$reftransporteterceros,$numeroguia,$fechadevolucion,$refdiscos); 
@@ -396,9 +427,10 @@ function insertarAlquileres($serviciosReferencias) {
 	$id = $_POST['id']; 
 	$numerohard = $_POST['numerohard']; 
 	$refpeliculas = $_POST['refpeliculas']; 
+	$refestados = $_POST['refestados']; 
 	
 	
-	$res = $serviciosReferencias->modificarDiscos($id,$numerohard,$refpeliculas); 
+	$res = $serviciosReferencias->modificarDiscos($id,$numerohard,$refpeliculas,$refestados); 
 	
 	if ($res == true) { 
 	echo ''; 
@@ -761,6 +793,20 @@ function toArray($query)
         $res[] = $row;
     }
     return $res;
+}
+
+function existe($serviciosReferencias) {
+	$busqueda 	= $_POST['busqueda'];
+	$idtabla 	= $_POST['idtabla'];
+	$campo 		= $_POST['campo'];
+
+	$res = $serviciosReferencias->existe($busqueda, $idtabla,$campo);
+
+	if (mysql_num_rows($res)>0) {
+		echo 'Si';
+	} else {
+		echo 'No';
+	}
 }
 
 

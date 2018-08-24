@@ -618,6 +618,7 @@ class Servicios {
 													<label for="'.$campo.'" class="control-label" style="text-align:left">'.$label.'</label>
 													<div class="input-group col-md-12">
 														<input type="text" class="form-control" id="'.$campo.'" name="'.$campo.'" placeholder="Ingrese el '.$label.'..." required>
+														<div class="help-block validar'.$campo.'" style="color:#F00;"></div>
 													</div>
 												</div>
 												

@@ -159,9 +159,17 @@ function insertarAlquileres($fechaentrega,$metodoentrega,$refmoviles,$reftranspo
 	
 	
 	function eliminarAlquileres($id) { 
-	$sql = "delete from dbalquileres where idalquiler =".$id; 
-	$res = $this->query($sql,0); 
-	return $res; 
+
+		$resAlquiler = $this->traerAlquileresPorId($id);
+
+		$this->modificarEstadoDiscos(mysql_result($resAlquiler,0,'refdiscos') ,1);
+
+		$sqlCascada = 'delete from dbalquileresprestatarios where refalquileres = '.$id;
+		$res = $this->query($sqlCascada,0); 
+
+		$sql = "delete from dbalquileres where idalquiler =".$id; 
+		$res = $this->query($sql,0); 
+		return $res; 
 	} 
 	
 	
@@ -208,10 +216,12 @@ function insertarAlquileres($fechaentrega,$metodoentrega,$refmoviles,$reftranspo
 	
 	
 	function traerAlquileresPorId($id) { 
-	$sql = "select idalquiler,fechaentrega,metodoentrega,refmoviles,reftransporteterceros,numeroguia,fechadevolucion,fechacreacion from dbalquileres where idalquiler =".$id; 
+	$sql = "select idalquiler, date_format( fechaentrega, '%d/%m/%Y') as fechaentrega,metodoentrega,refmoviles,reftransporteterceros,numeroguia,date_format( fechadevolucion, '%d/%m/%Y') as fechadevolucion,fechacreacion,refdiscos from dbalquileres where idalquiler =".$id; 
 	$res = $this->query($sql,0); 
 	return $res; 
 	} 
+
+
 	
 	/* Fin */
 	/* /* Fin de la Tabla: dbalquileres*/
@@ -261,6 +271,21 @@ function insertarAlquileres($fechaentrega,$metodoentrega,$refmoviles,$reftranspo
 	order by 1"; 
 	$res = $this->query($sql,0); 
 	return $res; 
+	} 
+
+	function traerAlquileresprestatariosPorAlquiler($id) { 
+		$sql = "select 
+		a.idalquilerprestatario,
+		pre.razonsocial as prestatario,
+		a.refalquileres,
+		a.refprestatarios
+		from dbalquileresprestatarios a 
+		inner join dbalquileres alq ON alq.idalquiler = a.refalquileres 
+		inner join dbprestatarios pre ON pre.idprestatario = a.refprestatarios 
+		where a.refalquileres = ".$id."
+		order by 1"; 
+		$res = $this->query($sql,0); 
+		return $res; 
 	} 
 	
 	
@@ -468,12 +493,37 @@ function insertarAlquileres($fechaentrega,$metodoentrega,$refmoviles,$reftranspo
 	$res = $this->query($sql,0); 
 	return $res; 
 	} 
+
+
+	function traerDiscosGridPorId($id) { 
+		$sql = "select 
+		d.iddisco,
+		d.numerohard,
+		pel.titulo,
+		e.estado,
+		d.refpeliculas,
+		d.refestados
+		from dbdiscos d 
+		inner join dbpeliculas pel ON pel.idpelicula = d.refpeliculas 
+		inner join dbclientes cl ON cl.idcliente = pel.refclientes 
+		inner join tbestados e ON e.idestado = d.refestados
+		where d.iddisco =".$id; 
+		$res = $this->query($sql,0); 
+		return $res; 
+		} 
 	
 	
 	function traerDiscosPorId($id) { 
 	$sql = "select iddisco,numerohard,refpeliculas,refestados from dbdiscos where iddisco =".$id; 
 	$res = $this->query($sql,0); 
 	return $res; 
+	} 
+
+
+	function traerDiscosPorNro($numerohard) { 
+		$sql = "select iddisco,numerohard,refpeliculas,refestados from dbdiscos where numerohard =".$numerohard; 
+		$res = $this->query($sql,0); 
+		return $res; 
 	} 
 
 	function traerFechaEstrenoPorDisco($id) {

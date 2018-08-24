@@ -23,34 +23,34 @@ $serviciosReferencias 	= new ServiciosReferencias();
 //*** SEGURIDAD ****/
 include ('../../includes/funcionesSeguridad.php');
 $serviciosSeguridad = new ServiciosSeguridad();
-$serviciosSeguridad->seguridadRuta($_SESSION['refroll_predio'], '../alquileres/');
+$serviciosSeguridad->seguridadRuta($_SESSION['refroll_predio'], '../devoluciones/');
 //*** FIN  ****/
 
 
 $fecha = date('Y-m-d');
 
 //$resProductos = $serviciosProductos->traerProductosLimite(6);
-$resMenu = $serviciosHTML->menu(utf8_encode($_SESSION['nombre_predio']),"Alquileres",$_SESSION['refroll_predio'],'');
+$resMenu = $serviciosHTML->menu(utf8_encode($_SESSION['nombre_predio']),"Devoluciones",$_SESSION['refroll_predio'],'');
 
 
 /////////////////////// Opciones pagina ///////////////////////////////////////////////
-$singular = "Alquiler";
+$singular = "Devolucion";
 
-$plural = "Alquileres";
+$plural = "Devoluciones";
 
-$eliminar = "eliminarAlquileres";
+$eliminar = "eliminarDevoluciones";
 
-$insertar = "insertarAlquileres";
+$insertar = "insertarDevoluciones";
 
 $tituloWeb = "Gestión: Alquiler de Discos Duros";
 //////////////////////// Fin opciones ////////////////////////////////////////////////
 
 
 /////////////////////// Opciones para la creacion del formulario  /////////////////////
-$tabla 			= "dbalquileres";
+$tabla 			= "dbdevoluciones";
 
-$lblCambio	 	= array("fechaentrega","metodoentrega","refmoviles","reftransporteterceros","numeroguia","fechadevolucion","refdiscos");
-$lblreemplazo	= array("Fecha Entrega","Metodo de Entrega","Moviles","Transporte Terceros","Nro Guia","Fecha Devolución","Disco");
+$lblCambio	 	= array("aldeposito","metodoentrega","refmoviles","reftransporteterceros","numeroguia","fechadevolucion","refprestatarios");
+$lblreemplazo	= array("Fue devuelto al Deposito?","Metodo de Entrega","Moviles","Transporte Terceros","Nro Guia","Fecha Devolución","Prestatario");
 
 $cadOpcional = '<option value="">-- Seleccionar --</option>';
 
@@ -281,9 +281,7 @@ if ($_SESSION['refroll_predio'] != 1) {
                 <div class="form-group col-md-6">
                     <label for="contactosasignados" class="control-label" style="text-align:left">Prestatario Asignados</label>
                     <div class="input-group col-md-12">
-                        <ul class="list-inline" id="lstContact">
-                        
-                        </ul>
+                        <ul class="list-inline" id="lstContact"></ul>
                         
                     </div>
                 </div>
@@ -391,7 +389,9 @@ $(document).ready(function(){
 	$('#asignarContacto').click(function(e) {
 		//alert($('#buscarcontacto option:selected').html());
 		if (existeAsiganado('user'+$('#buscarcontacto').chosen().val()) == 0) {
-			$('#lstContact').prepend('<li class="user'+ $('#buscarcontacto').chosen().val() +'"><input id="user'+ $('#buscarcontacto').chosen().val() +'" class="form-control checkLstContactos" checked type="checkbox" required="" style="width:50px;" name="user'+ $('#buscarcontacto').chosen().val() +'"><p>' + $('#buscarcontacto option:selected').html() + ' </p></li>');
+			if ($('#buscarcontacto').chosen().val() != '') {
+				$('#lstContact').prepend('<li class="user'+ $('#buscarcontacto').chosen().val() +'"><input id="user'+ $('#buscarcontacto').chosen().val() +'" class="form-control checkLstContactos" checked type="checkbox" required="" style="width:50px;" name="user'+ $('#buscarcontacto').chosen().val() +'"><p>' + $('#buscarcontacto option:selected').html() + ' </p></li>');
+			}
 		}
 	});
 	
@@ -425,7 +425,7 @@ $(document).ready(function(){
 			$('.divTransporte').show();
 			$('.divNroguia').show();
 		}
-	})
+	});
 	
 
 	$("#example").on("click",'.varborrar', function(){
@@ -472,6 +472,7 @@ $(document).ready(function(){
 
 	traerFechaEstrenoPorDisco($('#refdiscos').val());
 
+
 	 $( "#dialog2" ).dialog({
 		 	
 			    autoOpen: false,
@@ -514,65 +515,67 @@ $(document).ready(function(){
 		echo $serviciosHTML->validacion($tabla);
 	
 	?>
-	
 
-	
+
 	
 	//al enviar el formulario
     $('#cargar').click(function(){
-		
-		if (validador() == "")
-        {
-			//información del formulario
-			var formData = new FormData($(".formulario")[0]);
-			var message = "";
-			//hacemos la petición ajax  
-			$.ajax({
-				url: '../../ajax/ajax.php',  
-				type: 'POST',
-				// Form data
-				//datos del formulario
-				data: formData,
-				//necesario para subir archivos via ajax
-				cache: false,
-				contentType: false,
-				processData: false,
-				//mientras enviamos el archivo
-				beforeSend: function(){
-					$("#load").html('<img src="../../imagenes/load13.gif" width="50" height="50" />');       
-				},
-				//una vez finalizado correctamente
-				success: function(data){
+		if ($('#lstContact').is(':empty')) {
+			alert('Debe cargar algun prestador!');
+		} else {
+			if (validador() == "")
+			{
+				//información del formulario
+				var formData = new FormData($(".formulario")[0]);
+				var message = "";
+				//hacemos la petición ajax  
+				$.ajax({
+					url: '../../ajax/ajax.php',  
+					type: 'POST',
+					// Form data
+					//datos del formulario
+					data: formData,
+					//necesario para subir archivos via ajax
+					cache: false,
+					contentType: false,
+					processData: false,
+					//mientras enviamos el archivo
+					beforeSend: function(){
+						$("#load").html('<img src="../../imagenes/load13.gif" width="50" height="50" />');       
+					},
+					//una vez finalizado correctamente
+					success: function(data){
 
-					if (data == '') {
-                                            $(".alert").removeClass("alert-danger");
-											$(".alert").removeClass("alert-info");
-                                            $(".alert").addClass("alert-success");
-                                            $(".alert").html('<strong>Ok!</strong> Se cargo exitosamente el <strong><?php echo $singular; ?></strong>. ');
-											$(".alert").delay(3000).queue(function(){
-												/*aca lo que quiero hacer 
-												  después de los 2 segundos de retraso*/
-												$(this).dequeue(); //continúo con el siguiente ítem en la cola
+						if (data == '') {
+												$(".alert").removeClass("alert-danger");
+												$(".alert").removeClass("alert-info");
+												$(".alert").addClass("alert-success");
+												$(".alert").html('<strong>Ok!</strong> Se cargo exitosamente el <strong><?php echo $singular; ?></strong>. ');
+												$(".alert").delay(3000).queue(function(){
+													/*aca lo que quiero hacer 
+													después de los 2 segundos de retraso*/
+													$(this).dequeue(); //continúo con el siguiente ítem en la cola
+													
+												});
+												$("#load").html('');
+												url = "index.php";
+												$(location).attr('href',url);
 												
-											});
-											$("#load").html('');
-											url = "index.php";
-											$(location).attr('href',url);
-                                            
-											
-                                        } else {
-                                        	$(".alert").removeClass("alert-danger");
-                                            $(".alert").addClass("alert-danger");
-                                            $(".alert").html('<strong>Error!</strong> '+data);
-                                            $("#load").html('');
-                                        }
-				},
-				//si ha ocurrido un error
-				error: function(){
-					$(".alert").html('<strong>Error!</strong> Actualice la pagina');
-                    $("#load").html('');
-				}
-			});
+												
+											} else {
+												$(".alert").removeClass("alert-danger");
+												$(".alert").addClass("alert-danger");
+												$(".alert").html('<strong>Error!</strong> '+data);
+												$("#load").html('');
+											}
+					},
+					//si ha ocurrido un error
+					error: function(){
+						$(".alert").html('<strong>Error!</strong> Actualice la pagina');
+						$("#load").html('');
+					}
+				});
+			}
 		}
     });
 

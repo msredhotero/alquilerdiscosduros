@@ -310,6 +310,32 @@ $(document).ready(function(){
 			}
 		  }
 	} );
+
+	function existeDiscosPorNro(nro) {
+		$.ajax({
+			data:  {numerohard: nro, 
+					accion: 'existeDiscosPorNro'},
+			url:   '../../ajax/ajax.php',
+			type:  'post',
+			beforeSend: function () {
+				$(".validarnumerohard").html('');	
+			},
+			success:  function (response) {
+				if (response == 'Si') {
+					$(".validarnumerohard").html('Ya existe este Nro de Hard');
+					$("#numerohard").val('');
+				}
+			}
+		});
+	}
+
+	$('#numerohard').mouseleave(function() {
+		existeDiscosPorNro($(this).val());
+	});
+
+	$('#numerohard').focusout(function() {
+		existeDiscosPorNro($(this).val());
+	});
 	
 
 	$("#example").on("click",'.varborrar', function(){
