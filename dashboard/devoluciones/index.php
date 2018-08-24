@@ -65,6 +65,8 @@ $cadRef3 = "<option value='1'>Movil</option><option value='2'>Transporte Tercero
 $resVar4 = $serviciosReferencias->TraerDiscosDeposito();
 $cadRef4 	= $serviciosFunciones->devolverSelectBox($resVar4,array(1,2),' - ');
 
+$cadSimple = '<option value="1">Si</option><option value="0">No</option>';
+
 $refdescripcion = array(0=>$cadOpcional.$cadRef,1=>$cadOpcional.$cadRef2,2=>$cadRef3,3=>$cadRef4);
 $refCampo 	=  array('refmoviles','reftransporteterceros','metodoentrega','refdiscos');
 //////////////////////////////////////////////  FIN de los opciones //////////////////////////
@@ -166,29 +168,30 @@ if ($_SESSION['refroll_predio'] != 1) {
         </div>
     	<div class="cuerpoBox">
         	<form class="form-inline formulario" role="form">
-        	<?php if (mysql_num_rows($resVar4) > 0) { ?>
+        	
 			<div class="row">
-	  			
-				<div class="form-group col-md-6" style="display:block">
-					<label for="refdiscos" class="control-label" style="text-align:left">Disco</label>
-					<div class="input-group col-md-12">
-						<select class="form-control" id="refdiscos" name="refdiscos">
-							<?php echo $cadRef4; ?>		
-						</select>
-					</div>
-				</div>
+				<div class="form-group col-md-6" style="display:'.$lblOculta.'">
+                    <label for="buscarcontacto" class="control-label" style="text-align:left">Prestatarios</label>
+                    <div class="input-group col-md-12">
+                        
+                        <select data-placeholder="selecione el Prestatario..." id="refprestatarios" name="refprestatarios" class="chosen-select" tabindex="2" style="width:300px;">
+                            <option value=""></option>
+                            <?php echo ($lstPrestatario); ?>
+                        </select>
+                        <button type="button" class="btn btn-success" id="buscaralquileres"><span class="glyphicon glyphicon-share-alt"></span> Buscar Alquileres</button>
+                    </div>
+                </div>
+
+            </div>
+	  		<hr>
+			<p>Lista de Peliculas encontradas en el Cine</p>
+			<div class="row" id="datosbusquedas" style="margin-left:20px;">
 
 
-				<div class="form-group col-md-6" style="display:block">
-					<label for="fechaentrega" class="control-label" style="text-align:left">Fecha Entrega</label>
-					<div class="input-group date form_date col-md-6 datefechaentrega" data-date="" data-date-format="dd MM yyyy" data-link-field="fechaentrega" data-link-format="yyyy-mm-dd">
-						<input class="form-control" size="50" type="text" value="" readonly>
-						<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-					</div>
-					<input type="hidden" name="fechaentrega" id="fechaentrega" value="" />
-				</div>
-						
-						
+			</div>
+	  		<hr>
+			<div class="row" id="formularioDinamico">
+	
 				
 				<div class="form-group col-md-6" style="display:block">
 					<label for="metodoentrega" class="control-label" style="text-align:left">Metodo de Entrega</label>
@@ -206,7 +209,7 @@ if ($_SESSION['refroll_predio'] != 1) {
 					<label for="refmoviles" class="control-label" style="text-align:left">Moviles</label>
 					<div class="input-group col-md-12">
 						<select class="form-control" id="refmoviles" name="refmoviles">
-						<?php echo $cadOpcional.$cadRef; ?>		
+						<?php echo $cadRef; ?>		
 						</select>
 					</div>
 				</div>
@@ -217,7 +220,7 @@ if ($_SESSION['refroll_predio'] != 1) {
 					<label for="reftransporteterceros" class="control-label" style="text-align:left">Transporte Terceros</label>
 					<div class="input-group col-md-12">
 						<select class="form-control" id="reftransporteterceros" name="reftransporteterceros">
-						<?php echo $cadOpcional.$cadRef2; ?>		
+						<?php echo $cadRef2; ?>		
 						</select>
 					</div>
 				</div>
@@ -241,58 +244,28 @@ if ($_SESSION['refroll_predio'] != 1) {
 					</div>
 					<input type="hidden" name="fechadevolucion" id="fechadevolucion" value="" />
 				</div>
-				
-				
-				
-				<div class="form-group col-md-6" style="display:none">
-					<label for="fechacreacion" class="control-label" style="text-align:left">Fechacreacion</label>
-					<div class="input-group bootstrap-timepicker col-md-6">
-						<input id="timepicker2" name="fechacreacion" class="form-control">
-						<span class="input-group-addon">
-<span class="glyphicon glyphicon-time"></span>
-</span>
+
+
+				<div class="form-group col-md-2" style="display:block">
+					<label for="reftransporteterceros" class="control-label" style="text-align:left">Vuelve al Deposito</label>
+					<div class="input-group col-md-12">
+						<select class="form-control" id="aldeposito" name="aldeposito">
+						<?php echo $cadSimple; ?>		
+						</select>
 					</div>
-					
 				</div>
-						
-						
-				
-				
-				
-				<br><br><input type="hidden" id="accion" name="accion" value="insertarAlquileres"/> 
+
+				<div class="form-group col-md-12" style="display:block">
+					<label for="reftransporteterceros" class="control-label" style="text-align:left">Observaciones</label>
+					<div class="input-group col-md-12">
+						<textarea id="observaciones" name="observaciones" class="form-control" col="50"></textarea>
+					</div>
+				</div>
+
             </div>
 
 
-			<hr>
-            
-            <div class="row" id="contContacto" style="margin-left:0px; margin-right:25px;">
-            	<div class="form-group col-md-6" style="display:'.$lblOculta.'">
-                    <label for="buscarcontacto" class="control-label" style="text-align:left">Buscar Prestatarios</label>
-                    <div class="input-group col-md-12">
-                        
-                        <select data-placeholder="selecione el Prestatario..." id="buscarcontacto" name="buscarcontacto" class="chosen-select" tabindex="2" style="width:300px;">
-                            <option value=""></option>
-                            <?php echo ($lstPrestatario); ?>
-                        </select>
-                        <button type="button" class="btn btn-success" id="asignarContacto"><span class="glyphicon glyphicon-share-alt"></span> Asignar Prestatario</button>
-                    </div>
-                </div>
-                
-                <div class="form-group col-md-6">
-                    <label for="contactosasignados" class="control-label" style="text-align:left">Prestatario Asignados</label>
-                    <div class="input-group col-md-12">
-                        <ul class="list-inline" id="lstContact"></ul>
-                        
-                    </div>
-                </div>
-                
-            </div>
-            <!--
-            <div class="row">
-            	<div id="map" ></div>
 
-            </div>
-            -->
             <div class='row' style="margin-left:25px; margin-right:25px;">
                 <div class='alert'>
                 
@@ -311,10 +284,7 @@ if ($_SESSION['refroll_predio'] != 1) {
                 </ul>
                 </div>
             </div>
-			<?php } else { ?>
-			<p>No existen discos en el deposito para alquilar.</p>
 
-			<?php } ?>
             </form>
     	</div>
     </div>
@@ -394,25 +364,7 @@ $(document).ready(function(){
 			}
 		}
 	});
-	
-	function existeAsiganado(id) {
-		var existe = 0;	
-		$('#lstContact li input').each(function (index, value) { 
-		  if (id == $(this).attr('id')) {
-			return existe = 1;  
-		  }
-		});
-		
-		return existe;
-	}
-	
-	$("#lstContact").on("click",'.checkLstContactos', function(){
-		usersid =  $(this).attr("id");
-		
-		if  (!($(this).prop('checked'))) {
-			$('.'+usersid).remove();	
-		}
-	});
+
 
 	$('#metodoentrega').change(function() {
 		if ($(this).val() == '1') {
@@ -426,6 +378,10 @@ $(document).ready(function(){
 			$('.divNroguia').show();
 		}
 	});
+
+	$('#formularioDinamico').hide();
+	
+	
 	
 
 	$("#example").on("click",'.varborrar', function(){
@@ -454,23 +410,27 @@ $(document).ready(function(){
 	});//fin del boton modificar
 
 
-	function traerFechaEstrenoPorDisco(id) {
+	function buscaralquileres(id) {
 		$.ajax({
-			data:  {iddisco: id, 
-					accion: 'traerFechaEstrenoPorDisco'},
+			data:  {idprestatario: id, 
+					accion: 'buscaralquileres'},
 			url:   '../../ajax/ajax.php',
 			type:  'post',
 			beforeSend: function () {
-					
+				$("#datosbusquedas").html('');
+				$('#formularioDinamico').hide();	
 			},
 			success:  function (response) {
-				$(".datefechadevolucion").datetimepicker("update", "'"+response+"'");
+				$("#datosbusquedas").html(response);
+				$('#formularioDinamico').show();
 					
 			}
 		});
 	}
 
-	traerFechaEstrenoPorDisco($('#refdiscos').val());
+	$('#buscaralquileres').click(function() {
+		buscaralquileres($('#refprestatarios').val());
+	});
 
 
 	 $( "#dialog2" ).dialog({
@@ -516,12 +476,23 @@ $(document).ready(function(){
 	
 	?>
 
+	function tildoDisco() {
+		var valido = 0;
+		$('#datosbusquedas .lstDiscos li input').each(function( index, element ){
+			
+			if ($( this ).prop("checked")) {
+				valido = 1;
+			} 
+		});
+
+		return valido;
+	}
 
 	
 	//al enviar el formulario
     $('#cargar').click(function(){
-		if ($('#lstContact').is(':empty')) {
-			alert('Debe cargar algun prestador!');
+		if (tildoDisco() == 0) {
+			alert('Debe cargar alguna pelicula!');
 		} else {
 			if (validador() == "")
 			{
@@ -594,6 +565,8 @@ $('.form_date').datetimepicker({
 	forceParse: 0,
 	format: 'dd/mm/yyyy'
 });
+
+$(".datefechadevolucion").datetimepicker("update", '<?php echo date('d/m/Y'); ?>');
 </script>
 
 <script src="../../js/chosen.jquery.js" type="text/javascript"></script>

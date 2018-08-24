@@ -50,7 +50,7 @@ $tituloWeb = "Gestión: Alquiler de Discos Duros";
 $tabla 			= "dbpeliculas";
 
 $lblCambio	 	= array("fechaestreno","refclientes");
-$lblreemplazo	= array("Fecha de Estreno","Cliente");
+$lblreemplazo	= array("Fecha de Estreno","Distribuidora");
 
 
 $resVar1 = $serviciosReferencias->TraerClientes();

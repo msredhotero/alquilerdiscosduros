@@ -93,6 +93,38 @@ $refCampo 	=  array('refmoviles','reftransporteterceros','metodoentrega','refdis
 //$formulario 	= $serviciosFunciones->camposTablaModificar($id, $idTabla, $modificar,$tabla,$lblCambio,$lblreemplazo,$refdescripcion,$refCampo);
 
 
+
+$resContactos = $serviciosReferencias->traerPrestatarios();
+
+$resContactosCountries = $serviciosReferencias->traerAlquileresprestatariosPorAlquiler($id);
+
+
+	while ($subrow = mysql_fetch_array($resContactosCountries)) {
+			$arrayFS[] = $subrow;
+	}
+
+
+
+$cadUser = '<ul class="list-inline" id="lstContact">';
+while ($rowFS = mysql_fetch_array($resContactos)) {
+	$check = '';
+	if (mysql_num_rows($resContactosCountries)>0) {
+		foreach ($arrayFS as $item) {
+			if (stripslashes($item['refprestatarios']) == $rowFS[0]) {
+				$check = 'checked';	
+				$cadUser = $cadUser.'<li class="user'.$rowFS[0].'">'.'<input id="user'.$rowFS[0].'" '.$check.' class="form-control checkLstContactos" type="checkbox" required="" style="width:50px;" name="user'.$rowFS[0].'"><p>'.$rowFS[1].'</p>'."</li>";
+			}
+		}
+	}
+	
+
+
+}
+
+$cadUser = $cadUser."</ul>";
+
+$lstPrestatario = $serviciosFunciones->devolverSelectBox($serviciosReferencias->traerPrestatarios(),array(1,2),' - ');
+
 if ($_SESSION['refroll_predio'] != 1) {
 
 } else {
@@ -133,11 +165,7 @@ if ($_SESSION['refroll_predio'] != 1) {
     <!-- Latest compiled and minified JavaScript -->
     <script src="../../bootstrap/js/bootstrap.min.js"></script>
 	<link rel="stylesheet" href="../../css/bootstrap-datetimepicker.min.css">
-	<style type="text/css">
-		
-  
-		
-	</style>
+	<link rel="stylesheet" href="../../css/chosen.css">
     
    
    <link href="../../css/perfect-scrollbar.css" rel="stylesheet">
@@ -172,9 +200,9 @@ if ($_SESSION['refroll_predio'] != 1) {
 			<div class="form-group col-md-6" style="display:block">
 					<label for="refdiscos" class="control-label" style="text-align:left">Disco</label>
 					<div class="input-group col-md-12">
-						<select class="form-control" id="refdiscos" name="refdiscos">
-							<?php echo $cadRef5.$cadRef4; ?>		
-						</select>
+					<select data-placeholder="selecione el Disco..." id="refdiscos" name="refdiscos" class="chosen-select" tabindex="2" style="width:300px;">
+                            <?php echo ($cadRef5.$cadRef4); ?>
+                        </select>
 					</div>
 				</div>
 
@@ -205,7 +233,7 @@ if ($_SESSION['refroll_predio'] != 1) {
 					<label for="refmoviles" class="control-label" style="text-align:left">Moviles</label>
 					<div class="input-group col-md-12">
 						<select class="form-control" id="refmoviles" name="refmoviles">
-						<?php echo $cadOpcional.$cadRef; ?>		
+						<?php echo $cadRef; ?>		
 						</select>
 					</div>
 				</div>
@@ -216,7 +244,7 @@ if ($_SESSION['refroll_predio'] != 1) {
 					<label for="reftransporteterceros" class="control-label" style="text-align:left">Transporte Terceros</label>
 					<div class="input-group col-md-12">
 						<select class="form-control" id="reftransporteterceros" name="reftransporteterceros">
-						<?php echo $cadOpcional.$cadRef2; ?>		
+						<?php echo $cadRef2; ?>		
 						</select>
 					</div>
 				</div>
@@ -259,6 +287,31 @@ if ($_SESSION['refroll_predio'] != 1) {
 				
 				
 				<br><br><input type="hidden" id="accion" name="accion" value="modificarAlquileres"/> 
+            </div>
+
+			<hr>
+            
+            <div class="row" id="contContacto" style="margin-left:0px; margin-right:25px;">
+            	<div class="form-group col-md-6" style="display:'.$lblOculta.'">
+                    <label for="buscarcontacto" class="control-label" style="text-align:left">Buscar Cines</label>
+                    <div class="input-group col-md-12">
+                        
+                        <select data-placeholder="selecione el Cine..." id="buscarcontacto" name="buscarcontacto" class="chosen-select" tabindex="2" style="width:300px;">
+                            <option value=""></option>
+                            <?php echo ($lstPrestatario); ?>
+                        </select>
+                        <button type="button" class="btn btn-success" id="asignarContacto"><span class="glyphicon glyphicon-share-alt"></span> Asignar Cine</button>
+                    </div>
+                </div>
+                
+                <div class="form-group col-md-6">
+                    <label for="contactosasignados" class="control-label" style="text-align:left">Cines Asignados</label>
+                    <div class="input-group col-md-12">
+                        <ul class="list-inline" id="lstContact"><?php echo $cadUser; ?></ul>
+                        
+                    </div>
+                </div>
+                
             </div>
             
             
@@ -392,6 +445,32 @@ $(document).ready(function(){
 		} 
 	?>
 
+	function traerFechaEstrenoPorDisco(id, fechaentrega) {
+		$.ajax({
+			data:  {iddisco: id, 
+					fechaentrega: fechaentrega,
+					accion: 'traerFechaEstrenoPorDisco'},
+			url:   '../../ajax/ajax.php',
+			type:  'post',
+			beforeSend: function () {
+					
+			},
+			success:  function (response) {
+				$(".datefechadevolucion").datetimepicker("update", "'"+response+"'");
+					
+			}
+		});
+	}
+
+
+	$('#refdiscos').change(function() {
+		traerFechaEstrenoPorDisco($('#refdiscos').val(), $('#fechaentrega').val());
+	});
+
+	$('.datefechaentrega').change(function() {
+		traerFechaEstrenoPorDisco($('#refdiscos').val(), $('#fechaentrega').val());
+	});
+
 	 $( "#dialog2" ).dialog({
 		 	
 			    autoOpen: false,
@@ -441,9 +520,11 @@ $(document).ready(function(){
 	
 	//al enviar el formulario
     $('#cargar').click(function(){
-		
-		if (validador() == "")
-        {
+		if ($('#lstContact').is(':empty')) {
+			alert('Debe cargar algun prestador!');
+		} else {
+			if (validador() == "")
+			{
 			//información del formulario
 			var formData = new FormData($(".formulario")[0]);
 			var message = "";
@@ -494,6 +575,7 @@ $(document).ready(function(){
                     $("#load").html('');
 				}
 			});
+			}
 		}
     });
 
@@ -516,6 +598,23 @@ $('.form_date').datetimepicker({
 $(".datefechadevolucion").datetimepicker("update", '<?php echo mysql_result($resResultado,0,'fechadevolucion'); ?>');
 $(".datefechaentrega").datetimepicker("update", '<?php echo mysql_result($resResultado,0,'fechaentrega'); ?>');
 </script>
+
+
+<script src="../../js/chosen.jquery.js" type="text/javascript"></script>
+<script type="text/javascript">
+    var config = {
+      '.chosen-select'           : {},
+      '.chosen-select-deselect'  : {allow_single_deselect:true},
+      '.chosen-select-no-single' : {disable_search_threshold:10},
+      '.chosen-select-no-results': {no_results_text:'Oops, nothing found!'},
+      '.chosen-select-width'     : {width:"95%"}
+    }
+    for (var selector in config) {
+      $(selector).chosen(config[selector]);
+    }
+	
+	
+  </script>
 <?php } ?>
 </body>
 </html>

@@ -162,6 +162,10 @@ switch ($accion) {
 		eliminarTransporteterceros($serviciosReferencias); 
 		break; 
 
+		case 'buscaralquileres':
+		buscaralquileres($serviciosReferencias);
+		break;
+
 }
 
 
@@ -170,10 +174,30 @@ switch ($accion) {
 
 /* Fin */
 
+function buscaralquileres($serviciosReferencias) {
+	$id = $_POST['idprestatario'];
+
+	$res = $serviciosReferencias->traerAlquileresprestatariosPorPrestatario($id);
+
+	$cad = '<ul class="list-inline lstDiscos">';
+
+	while ($row = mysql_fetch_array($res)) {
+		$cad .= '<li class="user'.$row[0].'">
+		<p><input id="user'.$row[0].'" class="form-control checkLstContactos" type="checkbox" required="" style="width:50px;" name="user'.$row[0].'">
+		Pelicula: '.$row[1].' - Nro Hard: '.$row[2].' </p>
+		</li>';
+	}
+
+	$cad .= '</ul>';
+
+	echo $cad;
+}
+
 function traerFechaEstrenoPorDisco($serviciosReferencias) {
 	$id = $_POST['iddisco'];
+	$fechaentrega = $_POST['fechaentrega'];
 
-	$res = $serviciosReferencias->traerFechaEstrenoPorDisco($id);
+	$res = $serviciosReferencias->traerFechaEstrenoPorDisco($id,$fechaentrega);
 
 	echo $res;
 }
@@ -218,7 +242,12 @@ function insertarAlquileres($serviciosReferencias) {
 				$serviciosReferencias->insertarAlquileresprestatarios($res,$rowFS[0]);
 			}
 		}
-		$serviciosReferencias->modificarEstadoDiscos($refdiscos,3);
+		if ($metodoentrega == 1) {
+			$serviciosReferencias->modificarEstadoDiscos($refdiscos,2);
+		} else {
+			$serviciosReferencias->modificarEstadoDiscos($refdiscos,3);
+		}
+		
 		echo ''; 
 	} else { 
 		echo 'Hubo un error al insertar datos ';	 
@@ -410,17 +439,23 @@ function insertarAlquileres($serviciosReferencias) {
 	} 
 	
 	function insertarDiscos($serviciosReferencias) { 
-	$numerohard = $_POST['numerohard']; 
-	$refpeliculas = $_POST['refpeliculas']; 
+		$cantidad = $_POST['cantidad']; 
+		$refpeliculas = $_POST['refpeliculas']; 
+		$refestados = $_POST['refestados']; 
+
+
+		$nroHardComienzo = $serviciosReferencias->traerUltimoNroHardPorPelicula($refpeliculas);
 	
+		for ($i=1;$i<=$cantidad;$i++) {
+			$res = $serviciosReferencias->insertarDiscos($i + $nroHardComienzo,$refpeliculas,$refestados); 
+		}
+		
 	
-	$res = $serviciosReferencias->insertarDiscos($numerohard,$refpeliculas); 
-	
-	if ((integer)$res > 0) { 
-	echo ''; 
-	} else { 
-	echo 'Hubo un error al insertar datos';	 
-	} 
+		if ((integer)$res > 0) { 
+			echo ''; 
+		} else { 
+			echo 'Hubo un error al insertar datos';	 
+		} 
 	} 
 	
 	function modificarDiscos($serviciosReferencias) { 

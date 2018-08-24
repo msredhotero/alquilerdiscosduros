@@ -63,9 +63,9 @@ $cadRef2 	= $serviciosFunciones->devolverSelectBox($resVar2,array(1),'');
 $cadRef3 = "<option value='1'>Movil</option><option value='2'>Transporte Tercero</option>";
 
 $resVar4 = $serviciosReferencias->TraerDiscosDeposito();
-$cadRef4 	= $serviciosFunciones->devolverSelectBox($resVar4,array(1,2),' - ');
+$cadRef4 	= $serviciosFunciones->devolverSelectBox($resVar4,array(2,1),' - Nro Hard: ');
 
-$refdescripcion = array(0=>$cadOpcional.$cadRef,1=>$cadOpcional.$cadRef2,2=>$cadRef3,3=>$cadRef4);
+$refdescripcion = array(0=>$cadRef,1=>$cadRef2,2=>$cadRef3,3=>$cadRef4);
 $refCampo 	=  array('refmoviles','reftransporteterceros','metodoentrega','refdiscos');
 //////////////////////////////////////////////  FIN de los opciones //////////////////////////
 
@@ -172,9 +172,10 @@ if ($_SESSION['refroll_predio'] != 1) {
 				<div class="form-group col-md-6" style="display:block">
 					<label for="refdiscos" class="control-label" style="text-align:left">Disco</label>
 					<div class="input-group col-md-12">
-						<select class="form-control" id="refdiscos" name="refdiscos">
-							<?php echo $cadRef4; ?>		
-						</select>
+						<select data-placeholder="selecione el Disco..." id="refdiscos" name="refdiscos" class="chosen-select" tabindex="2" style="width:300px;">
+                            <?php echo ($cadRef4); ?>
+                        </select>
+
 					</div>
 				</div>
 
@@ -206,7 +207,7 @@ if ($_SESSION['refroll_predio'] != 1) {
 					<label for="refmoviles" class="control-label" style="text-align:left">Moviles</label>
 					<div class="input-group col-md-12">
 						<select class="form-control" id="refmoviles" name="refmoviles">
-						<?php echo $cadOpcional.$cadRef; ?>		
+						<?php echo $cadRef; ?>		
 						</select>
 					</div>
 				</div>
@@ -217,7 +218,7 @@ if ($_SESSION['refroll_predio'] != 1) {
 					<label for="reftransporteterceros" class="control-label" style="text-align:left">Transporte Terceros</label>
 					<div class="input-group col-md-12">
 						<select class="form-control" id="reftransporteterceros" name="reftransporteterceros">
-						<?php echo $cadOpcional.$cadRef2; ?>		
+						<?php echo $cadRef2; ?>		
 						</select>
 					</div>
 				</div>
@@ -267,19 +268,19 @@ if ($_SESSION['refroll_predio'] != 1) {
             
             <div class="row" id="contContacto" style="margin-left:0px; margin-right:25px;">
             	<div class="form-group col-md-6" style="display:'.$lblOculta.'">
-                    <label for="buscarcontacto" class="control-label" style="text-align:left">Buscar Prestatarios</label>
+                    <label for="buscarcontacto" class="control-label" style="text-align:left">Buscar Cines</label>
                     <div class="input-group col-md-12">
                         
-                        <select data-placeholder="selecione el Prestatario..." id="buscarcontacto" name="buscarcontacto" class="chosen-select" tabindex="2" style="width:300px;">
+                        <select data-placeholder="selecione el Cine..." id="buscarcontacto" name="buscarcontacto" class="chosen-select" tabindex="2" style="width:300px;">
                             <option value=""></option>
                             <?php echo ($lstPrestatario); ?>
                         </select>
-                        <button type="button" class="btn btn-success" id="asignarContacto"><span class="glyphicon glyphicon-share-alt"></span> Asignar Prestatario</button>
+                        <button type="button" class="btn btn-success" id="asignarContacto"><span class="glyphicon glyphicon-share-alt"></span> Asignar Cine</button>
                     </div>
                 </div>
                 
                 <div class="form-group col-md-6">
-                    <label for="contactosasignados" class="control-label" style="text-align:left">Prestatario Asignados</label>
+                    <label for="contactosasignados" class="control-label" style="text-align:left">Cines Asignados</label>
                     <div class="input-group col-md-12">
                         <ul class="list-inline" id="lstContact"></ul>
                         
@@ -454,9 +455,10 @@ $(document).ready(function(){
 	});//fin del boton modificar
 
 
-	function traerFechaEstrenoPorDisco(id) {
+	function traerFechaEstrenoPorDisco(id, fechaentrega) {
 		$.ajax({
 			data:  {iddisco: id, 
+					fechaentrega: fechaentrega,
 					accion: 'traerFechaEstrenoPorDisco'},
 			url:   '../../ajax/ajax.php',
 			type:  'post',
@@ -470,8 +472,15 @@ $(document).ready(function(){
 		});
 	}
 
-	traerFechaEstrenoPorDisco($('#refdiscos').val());
+	traerFechaEstrenoPorDisco($('#refdiscos').val(), $('#fechaentrega').val());
 
+	$('#refdiscos').change(function() {
+		traerFechaEstrenoPorDisco($('#refdiscos').val(), $('#fechaentrega').val());
+	});
+
+	$('.datefechaentrega').change(function() {
+		traerFechaEstrenoPorDisco($('#refdiscos').val(), $('#fechaentrega').val());
+	});
 
 	 $( "#dialog2" ).dialog({
 		 	

@@ -287,6 +287,25 @@ function insertarAlquileres($fechaentrega,$metodoentrega,$refmoviles,$reftranspo
 		$res = $this->query($sql,0); 
 		return $res; 
 	} 
+
+
+	function traerAlquileresprestatariosPorPrestatario($id) { 
+		$sql = "select 
+		a.idalquilerprestatario,
+		pe.titulo,
+		d.numerohard,
+		a.refalquileres,
+		a.refprestatarios
+		from dbalquileresprestatarios a 
+		inner join dbalquileres alq ON alq.idalquiler = a.refalquileres 
+		inner join dbdiscos d on d.iddisco = alq.refdiscos
+		inner join dbpeliculas pe on pe.idpelicula = d.refpeliculas
+		inner join dbprestatarios pre ON pre.idprestatario = a.refprestatarios 
+		where a.refprestatarios = ".$id." and d.refestados in (2,3,4)
+		order by 1"; 
+		$res = $this->query($sql,0); 
+		return $res; 
+	} 
 	
 	
 	function traerAlquileresprestatariosPorId($id) { 
@@ -526,11 +545,25 @@ function insertarAlquileres($fechaentrega,$metodoentrega,$refmoviles,$reftranspo
 		return $res; 
 	} 
 
-	function traerFechaEstrenoPorDisco($id) {
-		$sql = "select 
-		DATE_FORMAT(DATE_ADD(pel.fechaestreno, INTERVAL 15 DAY),'%d/%m/%Y')
-		from dbdiscos d 
-		inner join dbpeliculas pel ON pel.idpelicula = d.refpeliculas "; 
+	function traerFechaEstrenoPorDisco($id, $fechaentrega) {
+		if ($fechaentrega == '') {
+			$sql = "select 
+					DATE_FORMAT(DATE_ADD(pel.fechaestreno, INTERVAL 15 DAY),'%d/%m/%Y') as fechadevolucion
+					from dbdiscos d 
+					inner join dbpeliculas pel ON pel.idpelicula = d.refpeliculas 
+					where d.iddisco =".$id; 
+		} else {
+			$sql = "select 
+					(case when '".$fechaentrega."' > pel.fechaestreno then 
+						DATE_FORMAT(DATE_ADD('".$fechaentrega."', INTERVAL 15 DAY),'%d/%m/%Y')
+						else
+						DATE_FORMAT(DATE_ADD(pel.fechaestreno, INTERVAL 15 DAY),'%d/%m/%Y')
+					end) as fechadevolucion
+					from dbdiscos d 
+					inner join dbpeliculas pel ON pel.idpelicula = d.refpeliculas 
+					where d.iddisco =".$id; 
+		}
+		
 		$res = $this->query($sql,0); 
 
 		if (mysql_num_rows($res)>0) {
@@ -538,6 +571,18 @@ function insertarAlquileres($fechaentrega,$metodoentrega,$refmoviles,$reftranspo
 		}
 		return date('Y-m-d'); 
 	}
+
+	function traerUltimoNroHardPorPelicula($idpelicula) {
+		$sql = "select max(numerohard) from dbdiscos where refpeliculas =".$idpelicula;
+
+		$res = $this->query($sql,0); 
+
+		if (mysql_num_rows($res)>0) {
+			return mysql_result($res,0,0);
+		}
+		return 0; 
+	}
+
 	
 	/* Fin */
 	/* /* Fin de la Tabla: dbdiscos*/
