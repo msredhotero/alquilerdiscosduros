@@ -92,7 +92,7 @@ $cabeceras 		= "	<th>Pelicula</th>
 
 $formulario 	= $serviciosFunciones->camposTabla($insertar ,$tabla,$lblCambio,$lblreemplazo,$refdescripcion,$refCampo);
 
-$lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosReferencias->traerAlquileresGrid(),9);
+$lstCargados 	= $serviciosFunciones->camposTablaView($cabeceras,$serviciosReferencias->traerDevolucionesGrid(),9);
 
 $lstPrestatario = $serviciosFunciones->devolverSelectBox($serviciosReferencias->traerPrestatarios(),array(1,2),' - ');
 
@@ -284,7 +284,7 @@ if ($_SESSION['refroll_predio'] != 1) {
                 </ul>
                 </div>
             </div>
-
+	  		<input type="hidden" name="accion" id="accion" value="insertarDevoluciones"/>
             </form>
     	</div>
     </div>

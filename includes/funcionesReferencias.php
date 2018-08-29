@@ -295,7 +295,8 @@ function insertarAlquileres($fechaentrega,$metodoentrega,$refmoviles,$reftranspo
 		pe.titulo,
 		d.numerohard,
 		a.refalquileres,
-		a.refprestatarios
+		a.refprestatarios,
+		d.iddisco
 		from dbalquileresprestatarios a 
 		inner join dbalquileres alq ON alq.idalquiler = a.refalquileres 
 		inner join dbdiscos d on d.iddisco = alq.refdiscos
@@ -374,9 +375,9 @@ function insertarAlquileres($fechaentrega,$metodoentrega,$refmoviles,$reftranspo
 	
 	/* PARA Devoluciones */
 	
-	function insertarDevoluciones($refprestatarios,$metodoentrega,$refmoviles,$reftransporteterceros,$numeroguia,$fechadevolucion,$aldeposito,$observaciones) { 
-	$sql = "insert into dbdevoluciones(iddevolucion,refprestatarios,metodoentrega,refmoviles,reftransporteterceros,numeroguia,fechadevolucion,aldeposito,observaciones) 
-	values ('',".$refprestatarios.",".$metodoentrega.",".$refmoviles.",".$reftransporteterceros.",'".($numeroguia)."','".($fechadevolucion)."',".$aldeposito.",'".($observaciones)."')"; 
+	function insertarDevoluciones($refprestatarios,$metodoentrega,$refmoviles,$reftransporteterceros,$numeroguia,$fechadevolucion,$aldeposito,$observaciones,$refdiscos) { 
+	$sql = "insert into dbdevoluciones(iddevolucion,refprestatarios,metodoentrega,refmoviles,reftransporteterceros,numeroguia,fechadevolucion,aldeposito,observaciones,refdiscos) 
+	values ('',".$refprestatarios.",".$metodoentrega.",".$refmoviles.",".$reftransporteterceros.",'".($numeroguia)."','".($fechadevolucion)."',".$aldeposito.",'".($observaciones)."',".$refdiscos.")"; 
 	$res = $this->query($sql,1); 
 	return $res; 
 	} 
@@ -416,6 +417,31 @@ function insertarAlquileres($fechaentrega,$metodoentrega,$refmoviles,$reftranspo
 	$res = $this->query($sql,0); 
 	return $res; 
 	} 
+
+
+	function traerDevolucionesGrid() { 
+		$sql = "select 
+		a.iddevolucion,
+		pp.titulo,
+		d.numerohard,
+		(case when a.metodoentrega = 1 then 'Movil' else 'Transporte Terceros' end) as metodoentrega,
+		m.movil,
+		t.razonsocial as terceros,
+		a.numeroguia,
+		a.fechadevolucion,
+		a.aldeposito,
+        a.observaciones,
+		a.refmoviles,
+		a.reftransporteterceros
+		from dbdevoluciones a 
+		left join tbmoviles m on m.idmovil = a.refmoviles
+		left join tbtransporteterceros t on t.idtransportetercero = a.reftransporteterceros
+		inner join dbdiscos d on d.iddisco = a.refdiscos
+		inner join dbpeliculas pp on pp.idpelicula = d.refpeliculas
+		order by 1"; 
+		$res = $this->query($sql,0); 
+		return $res; 
+		} 
 	
 	
 	function traerDevolucionesPorId($id) { 

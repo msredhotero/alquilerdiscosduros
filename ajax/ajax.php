@@ -382,52 +382,69 @@ function insertarAlquileres($serviciosReferencias) {
 	} 
 	
 	function insertarDevoluciones($serviciosReferencias) { 
-	$refprestatarios = $_POST['refprestatarios']; 
-	$metodoentrega = $_POST['metodoentrega']; 
-	$refmoviles = $_POST['refmoviles']; 
-	$reftransporteterceros = $_POST['reftransporteterceros']; 
-	$numeroguia = $_POST['numeroguia']; 
-	$fechadevolucion = $_POST['fechadevolucion']; 
-	if (isset($_POST['aldeposito'])) { 
-	$aldeposito	= 1; 
-	} else { 
-	$aldeposito = 0; 
-	} 
-	$observaciones = $_POST['observaciones']; 
-	
-	
-	$res = $serviciosReferencias->insertarDevoluciones($refprestatarios,$metodoentrega,$refmoviles,$reftransporteterceros,$numeroguia,$fechadevolucion,$aldeposito,$observaciones); 
-	
-	if ((integer)$res > 0) { 
-	echo ''; 
-	} else { 
-	echo 'Hubo un error al insertar datos';	 
-	} 
+		$refprestatarios = $_POST['refprestatarios']; 
+		$metodoentrega = $_POST['metodoentrega']; 
+		$refmoviles = $_POST['refmoviles']; 
+		$reftransporteterceros = $_POST['reftransporteterceros']; 
+		$numeroguia = $_POST['numeroguia']; 
+		$fechadevolucion = $_POST['fechadevolucion']; 
+		if (isset($_POST['aldeposito'])) { 
+			$aldeposito	= 1; 
+		} else { 
+			$aldeposito = 0; 
+		} 
+		$observaciones = $_POST['observaciones']; 
+		
+		
+		$resUser = $serviciosReferencias->traerAlquileresprestatariosPorPrestatario($refprestatarios);
+		$cad = 'user';
+		while ($rowFS = mysql_fetch_array($resUser)) {
+			if (isset($_POST[$cad.$rowFS[0]])) {
+
+				$res = $serviciosReferencias->insertarDevoluciones($refprestatarios,$metodoentrega,$refmoviles,$reftransporteterceros,$numeroguia,$fechadevolucion,$aldeposito,$observaciones,$rowFS[5]); 
+
+				if ($aldeposito == 1) {
+					$serviciosReferencias->modificarEstadoDiscos($rowFS[5],1);
+				} else {
+					$serviciosReferencias->modificarEstadoDiscos($rowFS[5],5);
+				}
+			}
+		}
+		
+
+		
+		
+		if ((integer)$res > 0) { 
+			echo ''; 
+		} else { 
+			echo 'Hubo un error al insertar datos';	 
+		} 
 	} 
 	
 	function modificarDevoluciones($serviciosReferencias) { 
-	$id = $_POST['id']; 
-	$refprestatarios = $_POST['refprestatarios']; 
-	$metodoentrega = $_POST['metodoentrega']; 
-	$refmoviles = $_POST['refmoviles']; 
-	$reftransporteterceros = $_POST['reftransporteterceros']; 
-	$numeroguia = $_POST['numeroguia']; 
-	$fechadevolucion = $_POST['fechadevolucion']; 
-	if (isset($_POST['aldeposito'])) { 
-	$aldeposito	= 1; 
-	} else { 
-	$aldeposito = 0; 
-	} 
-	$observaciones = $_POST['observaciones']; 
-	
-	
-	$res = $serviciosReferencias->modificarDevoluciones($id,$refprestatarios,$metodoentrega,$refmoviles,$reftransporteterceros,$numeroguia,$fechadevolucion,$aldeposito,$observaciones); 
-	
-	if ($res == true) { 
-	echo ''; 
-	} else { 
-	echo 'Hubo un error al modificar datos'; 
-	} 
+		$id = $_POST['id']; 
+		$refprestatarios = $_POST['refprestatarios']; 
+		$metodoentrega = $_POST['metodoentrega']; 
+		$refmoviles = $_POST['refmoviles']; 
+		$reftransporteterceros = $_POST['reftransporteterceros']; 
+		$numeroguia = $_POST['numeroguia']; 
+		$fechadevolucion = $_POST['fechadevolucion']; 
+		
+		if (isset($_POST['aldeposito'])) { 
+			$aldeposito	= 1; 
+		} else { 
+			$aldeposito = 0; 
+		} 
+		$observaciones = $_POST['observaciones']; 
+		
+		
+		$res = $serviciosReferencias->modificarDevoluciones($id,$refprestatarios,$metodoentrega,$refmoviles,$reftransporteterceros,$numeroguia,$fechadevolucion,$aldeposito,$observaciones); 
+		
+		if ($res == true) { 
+			echo ''; 
+		} else { 
+			echo 'Hubo un error al modificar datos'; 
+		} 
 	} 
 	
 	function eliminarDevoluciones($serviciosReferencias) { 
