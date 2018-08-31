@@ -188,6 +188,56 @@ function traerGridPrincipal() {
 }
 
 
+function traerGridPrincipalFinalizados() {
+	$sql = "SELECT 
+				a.idalquiler,
+				pp.titulo,
+				d.numerohard,
+				a.fechaentrega,
+				(CASE
+					WHEN a.metodoentrega = 1 THEN 'Movil'
+					ELSE 'Transporte Terceros'
+				END) AS metodoentrega,
+				m.movil,
+				t.razonsocial AS terceros,
+				a.numeroguia,
+				a.fechadevolucion,
+				a.fechacreacion,
+				(SELECT 
+						ppp.nombre
+					FROM
+						dbalquileresprestatarios al
+							INNER JOIN
+						dbprestatarios ppp ON ppp.idprestatario = al.refprestatarios
+					WHERE
+						al.refalquileres = a.idalquiler
+					ORDER BY al.idalquilerprestatario DESC
+					LIMIT 1) AS prestatario,
+				ee.estado,
+				ee.idestado,
+				ee.color,
+				pp.fechaestreno,
+				a.refmoviles,
+				a.reftransporteterceros
+			FROM
+				dbalquileres a
+					LEFT JOIN
+				tbmoviles m ON m.idmovil = a.refmoviles
+					LEFT JOIN
+				tbtransporteterceros t ON t.idtransportetercero = a.reftransporteterceros
+					INNER JOIN
+				dbdiscos d ON d.iddisco = a.refdiscos
+					INNER JOIN
+				dbpeliculas pp ON pp.idpelicula = d.refpeliculas
+					INNER JOIN
+				tbestados ee ON ee.idestado = d.refestados 
+				where ee.idestado = 5";
+
+	$res = $this->query($sql,0); 
+	return $res; 
+}
+
+
 /* PARA Alquileres */
 
 function insertarAlquileres($fechaentrega,$metodoentrega,$refmoviles,$reftransporteterceros,$numeroguia,$fechadevolucion,$refdiscos) { 
@@ -334,6 +384,20 @@ function insertarAlquileres($fechaentrega,$metodoentrega,$refmoviles,$reftranspo
 		inner join dbprestatarios pre ON pre.idprestatario = a.refprestatarios 
 		where a.refalquileres = ".$id."
 		order by 1"; 
+		$res = $this->query($sql,0); 
+		return $res; 
+	} 
+
+
+	function traerAlquileresprestatariosUnicoPorAlquiler($id) { 
+		$sql = "select 
+			a.refprestatarios
+		from dbalquileresprestatarios a 
+		inner join dbalquileres alq ON alq.idalquiler = a.refalquileres 
+		inner join dbprestatarios pre ON pre.idprestatario = a.refprestatarios 
+		where a.refalquileres = ".$id."
+		order by a.idalquilerprestatario desc
+		limit 1"; 
 		$res = $this->query($sql,0); 
 		return $res; 
 	} 
@@ -566,6 +630,39 @@ function insertarAlquileres($fechaentrega,$metodoentrega,$refmoviles,$reftranspo
 		inner join dbpeliculas pel ON pel.idpelicula = d.refpeliculas 
 		inner join dbclientes cl ON cl.idcliente = pel.refclientes 
 		where d.refestados = 1
+		order by 1"; 
+		$res = $this->query($sql,0); 
+		return $res; 
+	} 
+
+	function traerDiscosEnCines() { 
+		$sql = "select 
+		d.iddisco,
+		d.numerohard,
+		pel.titulo,
+		d.refpeliculas,
+		d.refestados
+		from dbdiscos d 
+		inner join dbpeliculas pel ON pel.idpelicula = d.refpeliculas 
+		inner join dbclientes cl ON cl.idcliente = pel.refclientes 
+		where d.refestados = 4
+		order by 1"; 
+		$res = $this->query($sql,0); 
+		return $res; 
+	} 
+
+
+	function traerDiscosAlquilados() { 
+		$sql = "select 
+		d.iddisco,
+		d.numerohard,
+		pel.titulo,
+		d.refpeliculas,
+		d.refestados
+		from dbdiscos d 
+		inner join dbpeliculas pel ON pel.idpelicula = d.refpeliculas 
+		inner join dbclientes cl ON cl.idcliente = pel.refclientes 
+		where d.refestados in (2,3)
 		order by 1"; 
 		$res = $this->query($sql,0); 
 		return $res; 

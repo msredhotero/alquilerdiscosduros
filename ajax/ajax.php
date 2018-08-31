@@ -166,6 +166,14 @@ switch ($accion) {
 		buscaralquileres($serviciosReferencias);
 		break;
 
+		case 'devolversimple':
+		devolversimple($serviciosReferencias);
+		break;
+
+		case 'modificarEstadoDisco':
+			modificarEstadoDisco($serviciosReferencias);
+			break;
+
 }
 
 
@@ -173,6 +181,41 @@ switch ($accion) {
 
 
 /* Fin */
+
+
+function modificarEstadoDisco($serviciosReferencias) {
+	$id = $_POST['idalquiler'];
+
+	$resAlquiler = $serviciosReferencias->traerAlquileresPorId($id);
+
+	$res = $serviciosReferencias->modificarEstadoDiscos(mysql_result($resAlquiler,0,'refdiscos'),4);
+
+	echo '';
+}
+
+
+function devolversimple($serviciosReferencias) {
+	$id = $_POST['idalquiler'];
+	$metodoentrega = $_POST['metodoentrega'];
+	$refmoviles = $_POST['refmoviles'];
+	$reftransporteterceros = $_POST['reftransporteterceros'];
+	$numeroguia = $_POST['numeroguia'];
+	$fechadevolucion = $_POST['fechadevolucion'];
+	$aldeposito = $_POST['aldeposito'];
+	$observaciones = $_POST['observaciones'];
+
+	$resAlquiler = $serviciosReferencias->traerAlquileresPorId($id);
+	$idprestatario = $serviciosReferencias->traerAlquileresprestatariosUnicoPorAlquiler($id);
+
+	$res = $serviciosReferencias->insertarDevoluciones(mysql_result($idprestatario,0, 0),$metodoentrega,$refmoviles,$reftransporteterceros,$numeroguia,$fechadevolucion,$aldeposito,$observaciones,mysql_result($resAlquiler,0, 'refdiscos'));
+
+	if ($aldeposito == 1) {
+		$serviciosReferencias->modificarEstadoDiscos(mysql_result($resAlquiler,0, 'refdiscos'),1);
+	} else {
+		$serviciosReferencias->modificarEstadoDiscos(mysql_result($resAlquiler,0, 'refdiscos'),5);
+	}
+	echo '';
+}
 
 function buscaralquileres($serviciosReferencias) {
 	$id = $_POST['idprestatario'];
