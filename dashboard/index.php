@@ -48,7 +48,7 @@ $cabeceras 		= "	<th>Asunto</th>
 
 //////////////////////////////////////////////  FIN de los opciones //////////////////////////
 
-
+$lstGridGeneral = $serviciosReferencias->traerGridPrincipal();
 
 ?>
 
@@ -106,7 +106,7 @@ $cabeceras 		= "	<th>Asunto</th>
 <div id="content">
 	
     
-    
+<form class="form-inline formulario" role="form">
     
     <div class="row" style="margin-right:15px;margin-top:15px;">
     	<div class="col-md-12">
@@ -116,7 +116,38 @@ $cabeceras 		= "	<th>Asunto</th>
 					<span class="pull-right clickable panel-collapsed" style="margin-top:-15px; cursor:pointer;"><i class="glyphicon glyphicon-chevron-up"></i></span>
 				</div>
                     <div class="panel-body">
-                    	<?php //echo $lstCargados; ?>
+                    	<table class="table table-stripped table-responsive" id="example">
+	  						<thead>
+	  							<tr>
+								  <td>Cine</td>
+								  <td>Titulo</td>
+								  <td>Disco</td>
+								  <td>Fecha de Estreno</td>
+								  <td>Fecha Devolución</td>
+								  <td>Estado</td>
+								  <td>Acciones</td>
+								</tr>
+							</thead>
+							<tbody>
+
+								<?php while ($row = mysql_fetch_array($lstGridGeneral)) {  ?>
+								<tr>
+									<td><?php echo $row['prestatario']; ?></td>
+									<td><?php echo $row['titulo']; ?></td>
+									<td><?php echo $row['numerohard']; ?></td>
+									<td><?php echo $row['fechaestreno']; ?></td>
+									<td><?php echo $row['fechadevolucion']; ?></td>
+									<td><button type="button" class="btn" style="background-color: <?php echo $row['color']; ?>;"><?php echo $row['estado']; ?></button></td>
+									<td>
+										<button type="button" class="btn btn-primary vardevolver" id="<?php echo $row[0]; ?>" style="margin-left:0px;">Devolver</button>
+										<button type="button" class="btn btn-warning varmodificar" id="<?php echo $row[0]; ?>" style="margin-left:0px;">Modificar</button>
+										
+									</td>
+								</tr>
+
+								<?php } ?>
+							</tbody>
+						</table>
                     </div>
 
                     		
@@ -129,7 +160,98 @@ $cabeceras 		= "	<th>Asunto</th>
     
     
     
-    
+<div class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Registrar la Devolución</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+	  		<div class="row" id="formularioDinamico">
+				
+							
+				<div class="form-group col-md-6" style="display:block">
+					<label for="metodoentrega" class="control-label" style="text-align:left">Metodo de Entrega</label>
+					<div class="input-group col-md-12">
+						<select class="form-control" id="metodoentrega" name="metodoentrega">
+							<option value='1'>Movil</option>
+							<option value='2'>Transporte Tercero</option>		
+						</select>
+					</div>
+				</div>
+				
+				
+				
+				<div class="form-group col-md-6 divMoviles" style="display:block">
+					<label for="refmoviles" class="control-label" style="text-align:left">Moviles</label>
+					<div class="input-group col-md-12">
+						<select class="form-control" id="refmoviles" name="refmoviles">
+						<?php echo $cadRef; ?>		
+						</select>
+					</div>
+				</div>
+				
+				
+				
+				<div class="form-group col-md-6 divTransporte" style="display:block">
+					<label for="reftransporteterceros" class="control-label" style="text-align:left">Transporte Terceros</label>
+					<div class="input-group col-md-12">
+						<select class="form-control" id="reftransporteterceros" name="reftransporteterceros">
+						<?php echo $cadRef2; ?>		
+						</select>
+					</div>
+				</div>
+				
+				
+								
+				<div class="form-group col-md-6 divNroguia" style="display:block">
+					<label for="numeroguia" class="control-label" style="text-align:left">Nro Guia</label>
+					<div class="input-group col-md-12">
+						<input type="text" class="form-control" id="numeroguia" name="numeroguia" placeholder="Ingrese el Nro Guia..." required>
+					</div>
+				</div>
+								
+								
+						
+				<div class="form-group col-md-6" style="display:block">
+					<label for="fechadevolucion" class="control-label" style="text-align:left">Fecha Devolución</label>
+					<div class="input-group date form_date col-md-6 datefechadevolucion" data-date="" data-date-format="dd MM yyyy" data-link-field="fechadevolucion" data-link-format="yyyy-mm-dd">
+						<input class="form-control" size="50" type="text" value="" readonly>
+						<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+					</div>
+					<input type="hidden" name="fechadevolucion" id="fechadevolucion" value="" />
+				</div>
+
+
+				<div class="form-group col-md-2" style="display:block">
+					<label for="reftransporteterceros" class="control-label" style="text-align:left">Vuelve al Deposito</label>
+					<div class="input-group col-md-12">
+						<select class="form-control" id="aldeposito" name="aldeposito">
+						<?php echo $cadSimple; ?>		
+						</select>
+					</div>
+				</div>
+
+				<div class="form-group col-md-12" style="display:block">
+					<label for="reftransporteterceros" class="control-label" style="text-align:left">Observaciones</label>
+					<div class="input-group col-md-12">
+						<textarea id="observaciones" name="observaciones" class="form-control" col="50"></textarea>
+					</div>
+				</div>
+
+			</div>
+      </div>
+      <div class="modal-footer">
+		<input type="hidden" name="idalquiler" id="adalquiler" value="" />							
+        <button type="button" class="btn btn-primary">Guardar</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>   
     
     
    
@@ -138,7 +260,7 @@ $cabeceras 		= "	<th>Asunto</th>
 
 </div>
 
-
+</div>
 
 
 
@@ -160,6 +282,8 @@ $(document).ready(function(){
 			$this.find('i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
 		}
 	});
+
+
 	
 	$('#example').dataTable({
 		"order": [[ 0, "asc" ]],
@@ -189,7 +313,7 @@ $(document).ready(function(){
 	} );
 
 
-	$("#example").on("click",'.varver', function(){
+	$("#example").on("click",'.vardevolver', function(){
 		  usersid =  $(this).attr("id");
 		  if (!isNaN(usersid)) {
 			
